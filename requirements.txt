@@ -1,0 +1,10 @@
+# === Core: framework MCP (wajib) ===
+mcp>=2.0.0
+
+# === Backend COM: Excel automation di Windows (fitur penuh) ===
+pywin32>=312; sys_platform == "win32"
+
+# === Backend FILE: tanpa Excel (opsional, fitur terbatas) ===
+openpyxl>=3.1.0
+pyxlsb>=1.0.0
+oletools>=0.60.0
