@@ -2,7 +2,27 @@
 
 Powerful MCP (Model Context Protocol) server for Microsoft Excel. Enables LLMs to interact with Excel files (.xlsx, .xlsm, .xlsb, .xls) and perform advanced automation using COM (Windows) or File-based backends.
 
-## Quick Start (Plug & Play)
+## ⚡ One-Line Install (Recommended)
+
+### Windows (PowerShell)
+```powershell
+iex (iwr -useb "https://raw.githubusercontent.com/arv-fazriansyah/excel-mcp-server-code/main/install.ps1").Content
+```
+
+### Linux / macOS (Bash)
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/arv-fazriansyah/excel-mcp-server-code/main/install.sh)"
+```
+
+**What this does:**
+- Clones/updates the server to `%LOCALAPPDATA%\ExcelMCPServer` (Windows) or `~/.local/share/ExcelMCPServer` (Linux/macOS)
+- Installs Python dependencies automatically
+- Creates your working directory at `~/Documents/excel_files`
+- Prints the exact MCP configuration to copy-paste
+
+---
+
+## Manual Setup (Alternative)
 
 1. **Clone the repository:**
    ```bash
@@ -11,20 +31,17 @@ Powerful MCP (Model Context Protocol) server for Microsoft Excel. Enables LLMs t
    ```
 
 2. **Run the setup script:**
-   - **Windows:** Right-click `setup.ps1` and select "Run with PowerShell" or run `.\setup.ps1` in terminal.
-   - **Linux/macOS:** Run `bash setup.sh`.
+   - **Windows:** `.\setup.ps1`
+   - **Linux/macOS:** `bash setup.sh`
 
-   *This will automatically install dependencies and create the working directory at `~/Documents/excel_files`.*
-
-3. **Configure as an MCP Server:**
-   Add this to your MCP client configuration (e.g., Claude Desktop, Cursor):
-
+3. **Configure MCP Client:**
+   Add to your MCP config (Claude Desktop, Cursor, etc.):
    ```json
    {
      "mcpServers": {
        "excel": {
          "command": "python",
-         "args": ["<PATH_TO_REPO>/excel_mcp_server.py"]
+         "args": ["<FULL_PATH_TO>/excel_mcp_server.py"]
        }
      }
    }
