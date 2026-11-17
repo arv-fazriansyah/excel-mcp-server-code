@@ -15,11 +15,15 @@ Panduan operasional cepat untuk menggunakan engine Excel berbasis COM (`pywin32`
 
 ## Contoh Penggunaan Cepat via Python (CLI / Script)
 
-```python
-from excel_engine import session_open, session_info, range_get_values, session_close
+Path file secara otomatis mendeteksi folder `EXCEL_MCP_ROOT` (default: `~/Documents/excel_files`) atau path absolut.
 
-# 1. Buka workbook
-res = session_open(r"C:\Users\Fazriansyah\Documents\excel_files\MASTER_RBK2026.xlsb", read_only=True)
+```python
+import os
+from excel_engine import ROOT, session_open, session_info, range_get_values, session_close
+
+# 1. Buka workbook secara dinamis dari root folder
+file_path = os.path.join(ROOT, "MASTER_RBK2026.xlsb")
+res = session_open(file_path, read_only=True)
 sid = res["sessionId"]
 
 # 2. Baca info / struktur sheet
