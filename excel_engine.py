@@ -323,13 +323,24 @@ def vba_list_modules(sid: str) -> dict:
         return {"modules": out}
     return run_com(_run)
 
-def vba_read_module(sid: str, module_name: str) -> dict:
+def vba_write_module(sid: str, module_name: str, code: str, create: bool = False) -> dict:
+    # Need to be enabled via environment or manual override
     s = get_session(sid)
     _ensure_vba(s.path)
     def _run():
-        comp = s.workbook.VBProject.VBComponents(module_name)
+        vp = s.workbook.VBProject
+        try:
+            comp = vp.VBComponents(module_name)
+            created = False
+        except Exception:
+            if not create: raise ValueError(f"Module '{module_name}' tidak ada. Pakai create=true.")
+            comp = vp.VBComponents.Add(1)
+            comp.Name = module_name
+            created = True
         cm = comp.CodeModule
-        return {"module": module_name, "source": cm.Lines(1, cm.CountOfLines) if cm.CountOfLines else ""}
+        if cm.CountOfLines: cm.DeleteLines(1, cm.CountOfLines)
+        if code.strip(): cm.AddFromString(code)
+        return {"module": module_name, "created": created, "lines": cm.CountOfLines}
     return run_com(_run)
 
 def vba_run_macro(sid: str, macro: str, args: list | None = None) -> dict:
