@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 
-from .config import ROOT, MAX_CELLS, is_dangerous_formula, ALLOW_UNSAFE_FORMULAS
+from config import ROOT, MAX_CELLS, is_dangerous_formula, ALLOW_UNSAFE_FORMULAS
 
 
 def abspath(path: str) -> str:

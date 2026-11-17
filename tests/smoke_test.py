@@ -8,10 +8,10 @@ from pathlib import Path
 # ensure package in path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from excel_mcp_power.config import ROOT
-from excel_mcp_power.session import session_create, session_open, session_close, session_info
-from excel_mcp_power.tools import sheet, range, vba, table, named
-from excel_mcp_power.com_executor import get_executor
+from config import ROOT
+from session import session_create, session_open, session_close, session_info
+from tools import sheet, range, vba, table, named
+from com_executor import get_executor
 
 
 def test_workflow():

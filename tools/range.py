@@ -4,9 +4,9 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from ..session import get_session
-from ..com_executor import get_executor
-from ..utils import normalize_grid, sanitize, looks_like_error, check_grid_size, check_formula_values
+from session import get_session
+from com_executor import get_executor
+from utils import normalize_grid, sanitize, looks_like_error, check_grid_size, check_formula_values
 
 
 def _ws(sid, sheet):
@@ -70,7 +70,7 @@ def range_set_values(sid: str, sheet: str, range_address: str, values: Any) -> d
         last_r = first_r + len(rows) - 1
         last_c = first_c + width - 1
         # build address
-        from ..utils import cell_ref
+        from utils import cell_ref
         addr = cell_ref(first_r, first_c)
         if len(rows) > 1 or width > 1:
             addr += ":" + cell_ref(last_r, last_c)
@@ -95,7 +95,7 @@ def range_set_values(sid: str, sheet: str, range_address: str, values: Any) -> d
 
 def range_set_formula(sid: str, sheet: str, range_address: str, formula: str) -> dict:
     s, wb, ws, ex = _ws(sid, sheet)
-    from ..config import ALLOW_UNSAFE_FORMULAS, is_dangerous_formula
+    from config import ALLOW_UNSAFE_FORMULAS, is_dangerous_formula
     if not ALLOW_UNSAFE_FORMULAS and is_dangerous_formula(formula):
         raise ValueError(f"Formula berbahaya: {formula}")
     def _run():

@@ -6,9 +6,9 @@ import os
 import re
 from pathlib import Path
 
-from ..session import get_session
-from ..com_executor import get_executor
-from ..config import ALLOW_VBA_WRITE, ALLOW_MACROS, MACRO_EXTS
+from session import get_session
+from com_executor import get_executor
+from config import ALLOW_VBA_WRITE, ALLOW_MACROS, MACRO_EXTS
 
 
 VB_TYPE = {1: "Module", 2: "Class", 3: "Form", 100: "Document"}
@@ -242,7 +242,7 @@ def vba_import_module(sid: str, module_name: str, code: str | None = None, file_
     if not ALLOW_VBA_WRITE:
         raise PermissionError("Tulis VBA dinonaktifkan. Set EXCEL_MCP_ALLOW_VBA_WRITE=1 lalu restart.")
     if file_path:
-        from ..utils import check_path
+        from utils import check_path
         check_path(file_path)
         code = Path(file_path).read_text(encoding="utf-8-sig")
     if code is None:
@@ -266,7 +266,7 @@ def vba_delete_module(sid: str, module_name: str) -> dict:
 
 
 def vba_export_module(sid: str, module_name: str | None, out_dir: str) -> dict:
-    from ..utils import check_path
+    from utils import check_path
     check_path(out_dir)
     s = get_session(sid)
     wb = s.workbook

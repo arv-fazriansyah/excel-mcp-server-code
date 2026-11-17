@@ -7,9 +7,9 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-from .config import XL_FORMATS, ROOT, VISIBLE
-from .utils import abspath, check_path
-from .com_executor import get_excel_app, run_com
+from config import XL_FORMATS, ROOT, VISIBLE
+from utils import abspath, check_path
+from com_executor import get_excel_app, run_com
 
 
 @dataclass

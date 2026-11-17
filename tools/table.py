@@ -1,8 +1,8 @@
 """Excel Table (ListObject) operations."""
 from __future__ import annotations
 
-from ..session import get_session
-from ..com_executor import get_executor
+from session import get_session
+from com_executor import get_executor
 
 
 def table_list(sid: str, sheet: str) -> dict:

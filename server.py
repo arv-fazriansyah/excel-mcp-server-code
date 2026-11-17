@@ -4,8 +4,8 @@ from __future__ import annotations
 import os
 from mcp.server.fastmcp import FastMCP
 
-from .config import ROOT, READONLY, ALLOW_MACROS, ALLOW_VBA_WRITE
-from .session import (
+from config import ROOT, READONLY, ALLOW_MACROS, ALLOW_VBA_WRITE
+from session import (
     session_open, session_create, session_attach, session_info,
     session_save, session_save_as, session_close, session_list
 )

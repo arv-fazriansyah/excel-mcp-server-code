@@ -1,8 +1,8 @@
 """Workbook-level operations."""
 from __future__ import annotations
 
-from ..session import get_session
-from ..com_executor import get_executor
+from session import get_session
+from com_executor import get_executor
 
 
 
@@ -40,7 +40,7 @@ def workbook_set_autosave(sid: str, enabled: bool) -> dict:
 
 def workbook_export_pdf(sid: str, target_path: str, from_page: int | None = None, to_page: int | None = None,
                         quality: str = "Standard", ignore_print_areas: bool = False) -> dict:
-    from ..utils import check_path
+    from utils import check_path
     check_path(target_path)
     s = get_session(sid)
     wb = s.workbook
