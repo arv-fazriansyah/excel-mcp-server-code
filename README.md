@@ -21,8 +21,8 @@ Path file secara otomatis mendeteksi folder `EXCEL_MCP_ROOT` (default: `~/Docume
 import os
 from excel_engine import ROOT, session_open, session_info, range_get_values, session_close
 
-# 1. Buka workbook secara dinamis dari root folder
-file_path = os.path.join(ROOT, "MASTER_RBK2026.xlsb")
+# 1. Buka workbook contoh secara dinamis dari root folder
+file_path = os.path.join(ROOT, "contoh_workbook.xlsb")
 res = session_open(file_path, read_only=True)
 sid = res["sessionId"]
 
@@ -31,7 +31,7 @@ info = session_info(sid)
 print("Sheets:", [s["name"] for s in info["sheets"]])
 
 # 3. Baca data range sel
-data = range_get_values(sid, "DATAUSER", "A1:E10")
+data = range_get_values(sid, "Sheet1", "A1:E10")
 print(data["values"])
 
 # 4. Tutup sesi dengan bersih
