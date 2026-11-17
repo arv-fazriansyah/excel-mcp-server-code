@@ -9,23 +9,22 @@ import win32com.client as win32
 
 def find_target_excel(arg_input: str = None) -> str:
     """Mencari file target Excel secara cerdas berdasarkan argumen, drag-and-drop, atau smart scan."""
-    # 1. Jika path diberikan langsung (dari VBA atau Drag & Drop)
     if arg_input and os.path.exists(arg_input) and arg_input.endswith(('.xlsb', '.xlsm')):
         return os.path.abspath(arg_input)
         
-    # 2. Smart Scan: Cari di folder updater, Documents, dan excel_files
     search_dirs = [
         os.path.dirname(os.path.abspath(__file__)),
         os.path.join(os.path.expanduser("~"), "Documents"),
         os.path.join(os.path.expanduser("~"), "Documents", "excel_files"),
-        os.path.expanduser("~")
+        os.path.join(os.path.expanduser("~"), "Downloads")
     ]
     
     found_files = []
     for d in search_dirs:
         if os.path.exists(d):
             for root, dirs, files in os.walk(d):
-                # Batasi kedalaman folder agar pencarian cepat
+                if "backup" in root.lower() or "temp" in root.lower():
+                    continue
                 if root.count(os.sep) - d.count(os.sep) > 2: 
                     continue
                 for f in files:
@@ -33,36 +32,24 @@ def find_target_excel(arg_input: str = None) -> str:
                         if f.endswith(('.xlsb', '.xlsm')):
                             found_files.append(os.path.join(root, f))
                             
-    # Hilangkan duplikat
     found_files = list(set(found_files))
     
     if not found_files:
         print("[ERROR] Tidak ditemukan file aplikasi Excel (.xlsb/.xlsm) di komputer ini!")
-        print("Tip: Seret (Drag) file Excel Anda dan lepaskan di atas ikon updater.exe")
         return None
         
-    if len(found_files) == 1:
-        print(f"Ditemukan file target secara otomatis: {found_files[0]}")
-        return found_files[0]
+    # Pilih file non-backup terbaru atau yang paling relevan
+    valid_files = [f for f in found_files if "BACKUP" not in f]
+    if valid_files:
+        return valid_files[0]
         
-    # Jika ketemu lebih dari 1, minta user memilih
-    print("\nDitemukan beberapa file aplikasi di komputer Anda:")
-    for idx, ff in enumerate(found_files):
-        print(f"  [{idx+1}] {ff}")
-    
-    choice = input("\nPilih nomor file yang ingin di-update: ").strip()
-    try:
-        return found_files[int(choice) - 1]
-    except Exception:
-        print("[ERROR] Pilihan tidak valid.")
-        return None
+    return found_files[0]
 
 def run_update(github_zip_url: str, target_path_input: str, version: str):
     print("=== PROGRAM PEMBARUAN APLIKASI (UPDATER) ===")
     
     target_file = find_target_excel(target_path_input)
     if not target_file:
-        input("\nTekan Enter untuk keluar...")
         sys.exit(1)
         
     print(f"Target terpilih: {target_file}")
@@ -152,23 +139,19 @@ def run_update(github_zip_url: str, target_path_input: str, version: str):
         print("[OK] PROSES UPDATE SELESAI DENGAN SUKSES!")
         print(f"File diperbarui menjadi: {new_name}")
         print("=" * 50)
-        input("\nTekan Enter untuk keluar...")
         
     except Exception as e:
         print(f"\n[ERROR] Update gagal: {e}")
         if os.path.exists(backup_path):
             shutil.copy2(backup_path, target_file)
             print("Dipulihkan kembali dari file backup.")
-        input("\nTekan Enter untuk keluar...")
         sys.exit(1)
     finally:
         shutil.rmtree(temp_dir)
 
 if __name__ == "__main__":
     url = "https://codeload.github.com/arv-fazriansyah/updateARB/zip/refs/heads/main"
-    ver = "v25.11.2025"
-    
-    # Argumen pertama dari sys.argv adalah path file jika di-drag & drop atau dikirim VBA
+    ver = sys.argv[2] if len(sys.argv) > 2 else "v25.11.2025"
     arg_path = sys.argv[1] if len(sys.argv) > 1 else None
     
     run_update(url, arg_path, ver)
