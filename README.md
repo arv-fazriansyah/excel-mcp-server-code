@@ -1,39 +1,40 @@
-# Excel MCP Power
+# Excel MCP Power & Engine Guide
 
-Powerful Model Context Protocol (MCP) server for Microsoft Excel built in Python (COM-based / `pywin32`), featuring robust support for **`.xlsb`** read/write, **VBA** inspection/read/write/execution, tables, named ranges, and session management.
+Panduan operasional cepat untuk menggunakan engine Excel berbasis COM (`pywin32`) di folder ini.
 
-## Features
+## Lokasi & Struktur Proyek
+- **`excel_engine.py`**: Core engine tunggal (Manajemen session, Sheet, Range, Formula, Table, Named Range, VBA).
+- **`server.py`**: Entry point FastMCP server.
+- **`tests/smoke_test.py`**: Suite pengujian otomatis.
 
-- **Multi-Format Support**: Read and write `.xlsx`, `.xlsm`, `.xlsb`, and `.xls`.
-- **VBA Prototyping & Macros**: Inspect modules, read/write source code, and run macros directly via Excel's native VBE/COM interface.
-- **Advanced Excel Objects**: Excel Tables (`ListObjects`), Named Ranges, Worksheet management, and 2D range read/write with formulas.
-- **Security & Sandbox**: Root directory sandboxing (`EXCEL_MCP_ROOT`), read-only modes, formula injection filters, and configurable macro/VBA execution permissions.
-- **Clean Lifecycle**: Thread-local STA COM execution ensuring zero lingering Excel processes.
+## Aturan Utama
+1. **Windows + pywin32**: Wajib berjalan di Windows dengan Microsoft Excel terpasang.
+2. **Tanpa Proses Zombie**: Setiap sesi workbook harus ditutup (`session_close`) agar tidak ada proses `EXCEL.EXE` yang menggantung di Task Manager.
+3. **Format Didukung**: `.xlsx`, `.xlsm`, `.xlsb`, `.xls`.
+4. **VBA / Macro**: Memerlukan pengaturan Excel *"Trust access to the VBA project object model"* aktif.
 
----
+## Contoh Penggunaan Cepat via Python (CLI / Script)
 
-## Installation
+```python
+from excel_engine import session_open, session_info, range_get_values, session_close
 
-1. Ensure Python 3.10+ and Microsoft Excel are installed on Windows.
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+# 1. Buka workbook
+res = session_open(r"C:\Users\Fazriansyah\Documents\excel_files\MASTER_RBK2026.xlsb", read_only=True)
+sid = res["sessionId"]
 
----
+# 2. Baca info / struktur sheet
+info = session_info(sid)
+print("Sheets:", [s["name"] for s in info["sheets"]])
 
-## Configuration (Environment Variables)
+# 3. Baca data range sel
+data = range_get_values(sid, "DATAUSER", "A1:E10")
+print(data["values"])
 
-- `EXCEL_MCP_ROOT`: Root directory for Excel files (default: `~/Documents/excel_files`).
-- `EXCEL_MCP_READONLY`: Run in read-only mode (`0` or `1`).
-- `EXCEL_MCP_ALLOW_MACROS`: Allow macro execution (`0` or `1`).
-- `EXCEL_MCP_ALLOW_VBA_WRITE`: Allow VBA source code modification (`0` or `1`).
-- `EXCEL_MCP_VISIBLE`: Show Excel GUI (`0` or `1`, default `0`).
+# 4. Tutup sesi dengan bersih
+session_close(sid)
+```
 
----
-
-## Running Smoke Tests
-
-```bash
+## Menjalankan Smoke Test
+```powershell
 python tests/smoke_test.py
 ```
