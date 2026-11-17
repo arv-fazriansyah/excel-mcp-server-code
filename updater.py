@@ -8,14 +8,16 @@ import pythoncom
 import win32com.client as win32
 
 def find_target_excel(arg_input: str = None) -> str:
-    """Mencari file target Excel secara cerdas berdasarkan argumen, drag-and-drop, atau smart scan."""
+    """Mencari file target Excel secara cerdas berdasarkan argumen, drag-and-drop, atau smart scan dengan menu pilihan user."""
+    # 1. Jika path diberikan langsung (dari VBA atau Drag & Drop), langsung gunakan
     if arg_input and os.path.exists(arg_input) and arg_input.endswith(('.xlsb', '.xlsm')):
         return os.path.abspath(arg_input)
         
+    # 2. Smart Scan: Cari di folder updater, Documents\excel_files, Documents, dan Downloads
     search_dirs = [
         os.path.dirname(os.path.abspath(__file__)),
-        os.path.join(os.path.expanduser("~"), "Documents"),
         os.path.join(os.path.expanduser("~"), "Documents", "excel_files"),
+        os.path.join(os.path.expanduser("~"), "Documents"),
         os.path.join(os.path.expanduser("~"), "Downloads")
     ]
     
@@ -32,18 +34,34 @@ def find_target_excel(arg_input: str = None) -> str:
                         if f.endswith(('.xlsb', '.xlsm')):
                             found_files.append(os.path.join(root, f))
                             
-    found_files = list(set(found_files))
+    # Hilangkan duplikat dan file backup (.bak atau folder backup)
+    found_files = [f for f in list(set(found_files)) if "BACKUP" not in f and not f.endswith('.bak')]
     
     if not found_files:
         print("[ERROR] Tidak ditemukan file aplikasi Excel (.xlsb/.xlsm) di komputer ini!")
+        print("Tip: Seret (Drag) file Excel Anda dan lepaskan di atas ikon updater.exe")
         return None
         
-    # Pilih file non-backup terbaru atau yang paling relevan
-    valid_files = [f for f in found_files if "BACKUP" not in f]
-    if valid_files:
-        return valid_files[0]
-        
-    return found_files[0]
+    # Selalu tampilkan daftar file agar user dapat memilih secara interaktif
+    print("\n" + "=" * 60)
+    print(" DAFTAR FILE APLIKASI EXCEL YANG DITEMUKAN:")
+    print("=" * 60)
+    for idx, ff in enumerate(found_files):
+        print(f"  [{idx + 1}] {ff}")
+    print("=" * 60)
+    
+    while True:
+        choice = input(f"Pilih nomor file yang ingin di-update [1-{len(found_files)}] (atau tekan Ctrl+C untuk batal): ").strip()
+        try:
+            sel_idx = int(choice) - 1
+            if 0 <= sel_idx < len(found_files):
+                selected = found_files[sel_idx]
+                print(f"\n[OK] Anda memilih: {selected}\n")
+                return selected
+            else:
+                print("[ERROR] Nomor pilihan tidak valid. Silakan coba lagi.")
+        except ValueError:
+            print("[ERROR] Masukkan angka yang valid.")
 
 def run_update(github_zip_url: str, target_path_input: str, version: str):
     print("=== PROGRAM PEMBARUAN APLIKASI (UPDATER) ===")
@@ -140,11 +158,14 @@ def run_update(github_zip_url: str, target_path_input: str, version: str):
         print(f"File diperbarui menjadi: {new_name}")
         print("=" * 50)
         
+        input("\nTekan Enter untuk keluar...")
+        
     except Exception as e:
         print(f"\n[ERROR] Update gagal: {e}")
         if os.path.exists(backup_path):
             shutil.copy2(backup_path, target_file)
             print("Dipulihkan kembali dari file backup.")
+        input("\nTekan Enter untuk keluar...")
         sys.exit(1)
     finally:
         shutil.rmtree(temp_dir)
@@ -152,6 +173,8 @@ def run_update(github_zip_url: str, target_path_input: str, version: str):
 if __name__ == "__main__":
     url = "https://codeload.github.com/arv-fazriansyah/updateARB/zip/refs/heads/main"
     ver = sys.argv[2] if len(sys.argv) > 2 else "v25.11.2025"
-    arg_path = sys.argv[1] if len(sys.argv) > 1 else None
+    
+    # Jika dijalankan manual (klik 2x), arg_path kosong. Jika dari VBA / drag-drop, ambil dari argumen 1.
+    arg_path = sys.argv[1] if len(sys.argv) > 1 and os.path.exists(sys.argv[1]) else None
     
     run_update(url, arg_path, ver)
