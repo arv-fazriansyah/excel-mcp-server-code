@@ -8,7 +8,8 @@ from excel_engine import (
     sheet_list, sheet_add, sheet_rename, sheet_delete,
     range_get_values, range_set_values, range_get_formulas, range_set_formula,
     table_list, table_add, named_range_list, named_range_add,
-    vba_status, vba_list_modules, vba_read_module, vba_run_macro
+    vba_status, vba_list_modules, vba_read_module, vba_run_macro,
+    optimize_ribbon_developer
 )
 
 mcp = FastMCP("excel-mcp-power")
@@ -95,7 +96,7 @@ def list_tables(sessionId: str, sheet: str) -> dict:
 
 @mcp.tool()
 def add_table(sessionId: str, sheet: str, rangeAddress: str, name: str | None = None, hasHeader: bool = True) -> dict:
-    \"\"\"Membuat Excel Table dari range.\"\"\"
+    \"\"\"Membuat Excel Table dari range.\"`\"\"
     return table_add(sessionId, sheet, rangeAddress, name=name, has_header=hasHeader)
 
 @mcp.tool()
@@ -127,6 +128,11 @@ def vba_read_module_source(sessionId: str, moduleName: str) -> dict:
 def vba_run_macro_tool(sessionId: str, macro: str, args: list | None = None) -> dict:
     \"\"\"Menjalankan macro / prosedur VBA.\"\"\"
     return vba_run_macro(sessionId, macro, args=args)
+
+@mcp.tool()
+def enable_developer_tab(filePath: str) -> dict:
+    \"\"\"Mengaktifkan Tab Developer di Ribbon file Excel (.xlsb/.xlsm).\"\"\"
+    return optimize_ribbon_developer(filePath)
 
 def main():
     mcp.run()

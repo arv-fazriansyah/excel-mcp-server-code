@@ -349,3 +349,56 @@ def vba_run_macro(sid: str, macro: str, args: list | None = None) -> dict:
     _ensure_vba(s.path)
     target = macro if "!" in macro else f"'{s.workbook.Name}'!{macro}"
     return {"macro": target, "result": run_com(lambda: s.app.Run(target, *(args or [])))}
+
+
+# --- RIBBON OPTIMIZATION ---
+def optimize_ribbon_developer(file_path: str) -> dict:
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File tidak ditemukan: {file_path}")
+
+    temp_dir = tempfile.mkdtemp()
+    try:
+        with zipfile.ZipFile(file_path, 'r') as zf:
+            zf.extractall(temp_dir)
+        
+        xml_paths = [
+            os.path.join(temp_dir, 'customUI', 'customUI.xml'),
+            os.path.join(temp_dir, 'customUI', 'customUI14.xml')
+        ]
+        
+        updated_files = []
+        for xp in xml_paths:
+            if os.path.exists(xp):
+                with open(xp, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                old_str = '<tab idMso="TabDeveloper" getVisible="GetVisible" />'
+                new_str = '<tab idMso="TabDeveloper" visible="true" />'
+                
+                if old_str in content:
+                    content = content.replace(old_str, new_str)
+                    with open(xp, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    updated_files.append(os.path.basename(xp))
+
+        # Backup original
+        backup_path = file_path + '.bak'
+        if not os.path.exists(backup_path):
+            shutil.copy2(file_path, backup_path)
+
+        # Repackage .xlsb
+        with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for foldername, subfolders, filenames in os.walk(temp_dir):
+                for filename in filenames:
+                    filepath = os.path.join(foldername, filename)
+                    arcname = os.path.relpath(filepath, temp_dir)
+                    zf.write(filepath, arcname)
+
+        return {"ok": True, "updatedFiles": updated_files, "backup": backup_path}
+    finally:
+        shutil.rmtree(temp_dir)
+
+if __name__ == "__main__":
+    path = r"C:\Users\Fazriansyah\Documents\excel_files\MASTER_RBK2026.xlsb"
+    res = optimize_ribbon_developer(path)
+    print("Result:", res)
