@@ -1,0 +1,7 @@
+__pycache__/
+*/__pycache__/
+.env
+.venv/
+venv/
+*.pyc
+excel_files/
