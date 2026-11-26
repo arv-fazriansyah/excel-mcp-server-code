@@ -323,6 +323,22 @@ def vba_list_modules(sid: str) -> dict:
         return {"modules": out}
     return run_com(_run)
 
+def vba_read_module(sid: str, module_name: str) -> dict:
+    s = get_session(sid)
+    _ensure_vba(s.path)
+    def _run():
+        vp = s.workbook.VBProject
+        try:
+            comp = vp.VBComponents(module_name)
+        except Exception:
+            raise ValueError(f"Module '{module_name}' tidak ditemukan.")
+        cm = comp.CodeModule
+        lines = cm.CountOfLines
+        source = cm.Lines(1, lines) if lines > 0 else ""
+        return {"module": module_name, "type": VB_TYPE.get(comp.Type, str(comp.Type)), "lineCount": lines, "source": source}
+    return run_com(_run)
+
+
 def vba_write_module(sid: str, module_name: str, code: str, create: bool = False) -> dict:
     # Need to be enabled via environment or manual override
     s = get_session(sid)
