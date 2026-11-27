@@ -2,6 +2,29 @@
 
 Panduan operasional cepat untuk menggunakan engine Excel berbasis COM (`pywin32`) di folder ini.
 
+## Quick Install (Plug & Play)
+
+Satu perintah (PowerShell) — clone, buat venv, install dependency, smoke test, daftar ke OpenCode:
+
+```powershell
+irm https://raw.githubusercontent.com/arv-fazriansyah/excel-mcp-server-code/main/install.ps1 | iex
+```
+
+Atau jalankan dari folder repo:
+
+```powershell
+.\install.ps1
+```
+
+Opsi:
+- `-InstallDir "D:\tools\excel-mcp"` — lokasi instalasi kustom
+- `-UseSystemPython` — pakai Python sistem (tanpa venv)
+- `-SkipSmokeTest` — lewati smoke test
+
+Prasyarat: Windows, Python 3.10+, Git, Microsoft Excel terpasang, OpenCode CLI di PATH.
+
+Setelah instalasi selesai, restart OpenCode (atau `opencode service restart`) agar MCP `excel` dimuat.
+
 ## Lokasi & Struktur Proyek
 - **`excel_engine.py`**: Core engine tunggal (Manajemen session, Sheet, Range, Formula, Table, Named Range, VBA).
 - **`server.py`**: Entry point FastMCP server.
